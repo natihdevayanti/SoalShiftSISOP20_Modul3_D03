@@ -73,54 +73,54 @@ Thread merupakan unit terkecil dalam suatu proses yang dapat dijadwalkan oleh si
 **Server
 
 ```
-int main(int argc, char const *argv[]) {
-    int server_fd, new_socket;
-    struct sockaddr_in address;
-    int opt = 1;
-    int addrlen = sizeof(address);
-    
-      
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+
+int main(int argc, char const *argv[])
+{
+	int server_fd, socket_n, opt=1;
+	struct sockaddr_in address;
+	int addrlen=sizeof(address);
+
+	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
         exit(EXIT_FAILURE);
-    }
-      
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        perror("setsockopt");
-        exit(EXIT_FAILURE);
-    }
+	}
 
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons( PORT );
-      
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) {
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+	perror("setsockopt");
+	exit(EXIT_FAILURE);
+	}
+
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_port = htons( PORT );		
+	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
-    }
+	}
 
-    if (listen(server_fd, 3) < 0) {
-        perror("listen");
-        exit(EXIT_FAILURE);
-    }
+	if (listen(server_fd, 3) < 0) {
+	perror("listen");
+	exit(EXIT_FAILURE);
+	}
 
-    pthread_t thread_id;
+	pthread_t thread_id;
+	
+	while((socket_n = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))){
+		
+		if( pthread_create( &thread_id , NULL ,  valsocket , (void*) &socket_n) < 0)
+		{
+		    perror("could not create thread");
+		    return 1;
+		}
+		
+	    }
 
-    while((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))){
-        
-        if( pthread_create( &thread_id , NULL ,  handle_connection , (void*) &new_socket) < 0)
-        {
-            perror("could not create thread");
-            return 1;
-        }
-        
-    }
+	    if(socket_n < 0){
+		perror("accept failed");
+		exit(EXIT_FAILURE);
+	    }
+	}
 
-    if(new_socket < 0){
-        perror("accept failed");
-        exit(EXIT_FAILURE);
-    }
-}
 
 ```
 
@@ -128,98 +128,94 @@ int main(int argc, char const *argv[]) {
 **Client
 
 ```
-int main(int argc, char const *argv[]) {
-    struct sockaddr_in address;
-    int sock = 0, valread;
-    struct sockaddr_in serv_addr;
-    // char *hello = "Hello from client";
-    char buffer[1024] = {0};
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        printf("\n Socket creation error \n");
-        return -1;
-    }
-  
-    memset(&serv_addr, '0', sizeof(serv_addr));
-  
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-      
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) {
-        printf("\nInvalid address/ Address not supported \n");
-        return -1;
-    }
-  
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        printf("\nConnection Failed \n");
-        return -1;
-    }
+int main(int argc, char const *argv[])
+{
+	struct sockaddr_in address;
+	int sock=0, baca;
 
-    while(1){
-        if(isPlay == 0){
-            printf("1. Register\n2. Login\nChoices : ");
-            char choice[256];
-            scanf("%s", choice);    
-            send(sock , choice , strlen(choice) , 0 );
+	struct sockaddr_in serv_addr;
+	char buff[1024] = {0};
+	if((sock=socket(AF_INET,SOCK_STREAM,0))<0)
+	{
+		printf("\n Socket creation error \n");
+		return -1;
+	}
+	memset(&serv_addr, '0', sizeof(serv_addr));
 
-            if (strcmp(choice, "register") == 0){
-                
-                char input[100];
-                
-                printf("Username : ");
-                scanf("%s", input);
-                getchar();
-                
-                send(sock , input , strlen(input) , 0 );
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port = htons(PORT);
 
-                memset(input , 0 , sizeof(input));
-                printf("Password : ");
-                gets(input);
-                send(sock , input , strlen(input) , 0 );
+	if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) 
+	{
+		printf("\nInvalid address/ Address not supported \n");
+		return -1;
+	}
 
-                printf("Register success !! \n");
-                
-            }
-            if (strcmp(choice, "login") == 0){
-                
-                char input[100];
-                
-                printf("Username : ");
-                scanf("%s", input);
-                getchar();
-                
-                send(sock , input , strlen(input) , 0 );
+	if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
+	{
+		printf("\nConnection Failed \n");
+		return -1;
+	}
 
-                memset(input , 0 , sizeof(input));
-                printf("Password : ");
-                gets(input);
-                send(sock , input , strlen(input) , 0 );
+	while(1)
+	{
+		if(gamemulai==0)
+		{
+			printf("1. Login Akun \n2. Create Akun\nPilih (dalam angka): ");
+			char pilih[10];
+			scanf("%s", pilih);
+			send(sock, pilih, strlen(pilih), 0);
+			if(strcmp(pilih, "1") == 0)
+			{
+				char akunmu[50];
+				printf("Username : ");
+				scanf("%s", akunmu);
+				getchar();
 
-                int code = -1;
-                valread = recv(sock, &code, sizeof(code), 0);
-                if (code == 202){
-                    printf("Login Success !!\n");
-                    isPlay = 1;
-                    
-                    pthread_t thread_id;
-                    if( pthread_create( &thread_id , NULL ,  GameLoops , (void*) &sock) < 0)
-                    {
-                        perror("could not create thread");
-                        return 1;
-                    }
+				send(sock, akunmu, strlen(akunmu), 0);
+									
+				memset(akunmu, 0, sizeof(akunmu));
+				printf("Password : ");
+				gets(akunmu);
+				send(sock, akunmu, strlen(akunmu), 0);
 
-                }else{
-                    printf("Login Failed !!\n");
-                }
-                
-            }
-            memset(choice , 0 , sizeof(choice));
-                
-        }
+				int kode = -1;
+				baca = recv(sock, &kode, sizeof(kode), 0);
+				if(kode==202)
+				{
+					printf("Login Berhasil\n");
+					gamemulai = 1;
+					pthread_t thread_id;
+					//if(pthread_creat(*thread_id, NULL, 
+				}
+				else
+				{
+					printf("Login Gagal\n");
+				}
+			}				
+			if(strcmp(pilih, "2") == 0)
+			{
+				char akunmu[50];
+				printf("Username : ");
+				scanf("%s", akunmu);
+				getchar();
 
-    }
+				send(sock, akunmu, strlen(akunmu), 0);
+									
+				memset(akunmu, 0, sizeof(akunmu));
+				printf("Password : ");
+				gets(akunmu);
+				send(sock, akunmu, strlen(akunmu), 0);
 
-    return 0;
-}
+				printf("Register Telah Sukses\n");
+			}			
+			
+			
+			memset(pilih, 0, sizeof(pilih));
+		}
+	}
+	return 0;
+}				
 
 ```
 
@@ -229,6 +225,8 @@ int main(int argc, char const *argv[]) {
 - Kurang memahami syntax yang dipakai
 
 - Belum sempat memahami secara detail maksud dari soal terkait
+
+- Masih menyusun fungsi-fungsi yang dibentuk dan belum selesai 
 
 
 > Materi
