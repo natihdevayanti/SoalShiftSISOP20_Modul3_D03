@@ -16,6 +16,7 @@ Elvira Catrine Natalie (05111840000016)
 
 - Untuk mendapatkan variabel-variabelnya, maka kita menggunakan struct. Struct ini ialah untuk pokemon, gamedata, dan juga shop. 
 
+
 **a
 Menggunakan IPC-shared memory, thread, fork-exec.
 
@@ -68,9 +69,9 @@ Thread merupakan unit terkecil dalam suatu proses yang dapat dijadwalkan oleh si
 
 - TapTap Game adalah game online berbasis text console. Terdapat 2 program yaitu tapserver.c dan tapplayer.c
 
+
 **Server
 
-- 
 ```
 int main(int argc, char const *argv[]) {
     int server_fd, new_socket;
