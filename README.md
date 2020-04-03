@@ -17,12 +17,19 @@ Elvira Catrine Natalie (05111840000016)
 - Untuk mendapatkan variabel-variabelnya, maka kita menggunakan struct. Struct ini ialah untuk pokemon, gamedata, dan juga shop. 
 
 **a
+Menggunakan IPC-shared memory, thread, fork-exec.
 
 **b
+Bebas berkreasi dengan game ini asal tidak konflik dengan
+requirements yang ada. (Contoh: memberi nama trainer, memberi notifikasi
+kalau barang di shop sudah penuh, dan lain-lain).
 
 **c
+Terdapat 2 code yaitu soal2_traizone.c dan soal2_pokezone.c.
+
 
 **d
+soal2_traizone.c mengandung beberapa fitur yang tertera dalam soal shift.
 
 
 > Kendala
@@ -59,11 +66,161 @@ Thread merupakan unit terkecil dalam suatu proses yang dapat dijadwalkan oleh si
 
 ### TapTap Game
 
+- TapTap Game adalah game online berbasis text console. Terdapat 2 program yaitu tapserver.c dan tapplayer.c
 
-**Tapserver
+**Server
+
+- 
+```
+int main(int argc, char const *argv[]) {
+    int server_fd, new_socket;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+    
+      
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+      
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons( PORT );
+      
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    if (listen(server_fd, 3) < 0) {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+
+    pthread_t thread_id;
+
+    while((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))){
+        
+        if( pthread_create( &thread_id , NULL ,  handle_connection , (void*) &new_socket) < 0)
+        {
+            perror("could not create thread");
+            return 1;
+        }
+        
+    }
+
+    if(new_socket < 0){
+        perror("accept failed");
+        exit(EXIT_FAILURE);
+    }
+}
+
+```
 
 
-**Tapplayer
+**Client
+
+```
+int main(int argc, char const *argv[]) {
+    struct sockaddr_in address;
+    int sock = 0, valread;
+    struct sockaddr_in serv_addr;
+    // char *hello = "Hello from client";
+    char buffer[1024] = {0};
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("\n Socket creation error \n");
+        return -1;
+    }
+  
+    memset(&serv_addr, '0', sizeof(serv_addr));
+  
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+      
+    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) {
+        printf("\nInvalid address/ Address not supported \n");
+        return -1;
+    }
+  
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        printf("\nConnection Failed \n");
+        return -1;
+    }
+
+    while(1){
+        if(isPlay == 0){
+            printf("1. Register\n2. Login\nChoices : ");
+            char choice[256];
+            scanf("%s", choice);    
+            send(sock , choice , strlen(choice) , 0 );
+
+            if (strcmp(choice, "register") == 0){
+                
+                char input[100];
+                
+                printf("Username : ");
+                scanf("%s", input);
+                getchar();
+                
+                send(sock , input , strlen(input) , 0 );
+
+                memset(input , 0 , sizeof(input));
+                printf("Password : ");
+                gets(input);
+                send(sock , input , strlen(input) , 0 );
+
+                printf("Register success !! \n");
+                
+            }
+            if (strcmp(choice, "login") == 0){
+                
+                char input[100];
+                
+                printf("Username : ");
+                scanf("%s", input);
+                getchar();
+                
+                send(sock , input , strlen(input) , 0 );
+
+                memset(input , 0 , sizeof(input));
+                printf("Password : ");
+                gets(input);
+                send(sock , input , strlen(input) , 0 );
+
+                int code = -1;
+                valread = recv(sock, &code, sizeof(code), 0);
+                if (code == 202){
+                    printf("Login Success !!\n");
+                    isPlay = 1;
+                    
+                    pthread_t thread_id;
+                    if( pthread_create( &thread_id , NULL ,  GameLoops , (void*) &sock) < 0)
+                    {
+                        perror("could not create thread");
+                        return 1;
+                    }
+
+                }else{
+                    printf("Login Failed !!\n");
+                }
+                
+            }
+            memset(choice , 0 , sizeof(choice));
+                
+        }
+
+    }
+
+    return 0;
+}
+
+```
 
 
 > Kendala
