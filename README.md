@@ -95,7 +95,7 @@ Socket merupakan sebuah end-point dalam sebuah proses yang saling berkomunikasi.
 
 ### Matriks 
 
-**a
+**a.
 Program untuk melakukan perkalian matriks. Ukuran matriks pertama adalah 4x2, dan matriks kedua 2x5. Isi dari matriks didefinisikan di dalam kodingan. Matriks nantinya akan berisi angka 1-20
 
 > Langkah dan Penjelasan
@@ -217,19 +217,19 @@ printf("Hasil Perkalian antara matriks A dan B adalah: \n");
  ```
 
 
-**b 
-Carilah nilai faktorial pertambahan per-elemen hasil perkalian matriks tersebut
+**b. 
+ Carilah nilai faktorial pertambahan per-elemen hasil perkalian matriks tersebut
 
 - Template shared memory
 
 ```
-
-        key_t key = 1234;
+key_t key = 1234;
         int (*value)[10];
         int shmid = shmget(key, sizeof(int), IPC_CREAT | 0666);
         value = shmat(shmid, 0, 0);
-        
-        ```
+	
+  
+ ```
         
 - Menampilkan hasil perkalian matriks pada soal 4a
 
@@ -293,8 +293,79 @@ unsigned long long factorial(unsigned long long a){
 
 Melalui syntax `printf("%llu\t", factorial(angka));`, nantinya akan dicetak faktorial pertambahan per elemen matriks hasil perkalian tersebut.
 
-**c
 
+**c.
+Pada program ini, Norland diminta mengetahui jumlah file dan folder di direktori saat ini dengan command "ls | wc -l".
+
+- Deklarasikan pipe dan fork
+
+```
+	int pipe1[2], pipe2[2]; 
+   
+	pid_t p1;
+	
+	p1=fork();
+	
+```
+
+- Error handling
+
+```
+	if (pipe(pipe1)==-1) //nilai failure
+	{ 
+		fprintf(stderr, "Pipe Gagal" ); 
+		return 1; 
+	} 
+	if (pipe(pipe2)==-1)  //nilai failure
+	{ 
+		fprintf(stderr, "Pipe Gagal" ); 
+		return 1; 
+	} 
+
+	if (p1< 0) 
+	{ 
+		fprintf(stderr, "Fork Gagal" ); //tidak dapat dibentuk
+		return 1; 
+	}  
+
+```
+
+- Fork pada parent yang menrima inputan dari child yang dihubungkan dengan pipe
+
+```
+    else if (p1 > 0) {
+
+        close(pipe2[0]);
+        close(pipe2[1]);
+		// 0 = input, 1 = write
+        dup2(pipe1[0], 0); 
+		//baca isi dr pipe1 untuk dieksekusi
+        dup2(pipe2[1], 1); // output ke pipe2
+
+        close(pipe1[0]);
+        close(pipe1[1]);
+//mengetahui jumlah file dan folder di direktori saat ini
+        char *arg1[] = {"wc", "-l", NULL};
+        execvp("/usr/bin/wc", arg1);
+		exit(0);
+        }
+	
+```
+- Child process untuk menampilkan ls. List apa saja file yang ada di dalamnya
+
+```
+	else 
+	{ 
+		//jika fork()==0
+        dup2(pipe1[1], 1);
+        close(pipe1[0]);
+        close(pipe1[1]);
+        char *arg2[] = {"ls", NULL};
+        execvp("/bin/ls", arg2);
+	} 
+} 
+
+```
 
 -
 int main()
