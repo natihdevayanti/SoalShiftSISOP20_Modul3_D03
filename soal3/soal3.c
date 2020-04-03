@@ -55,8 +55,9 @@ int main(int argv1, char *argv2[]) {
          // loop ketika sebuah direktori ada file/folder didalamnya
         while( (de=readdir(dir)) )
         {
-            if ( !strcmp(de->d_name, ".") || !strcmp(de->d_name, "..") );
-            //printf("%s\n",de->d_name);
+            if ( !strcmp(de->d_name, ".") || !strcmp(de->d_name, "..") ); 
+		//namafile
+            printf("%s\n",de->d_name);
             strcpy(path1,argv2[2]); //copy string ke variabel path1
             strcat(path1,"/"); //menyambungkan perargumennya
             strcat(path1,de->d_name); 
@@ -83,7 +84,7 @@ int main(int argv1, char *argv2[]) {
         {
             if ( !strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."));
              //lanjutkan
-            printf("%s \n",de->d_name);
+            printf("%s \n",de->d_name); //nama file
             strcpy(path1,curr_dir); //copy string ke variabel path1
             strcat(path1,"/"); 
             strcat(path1,de->d_name);
