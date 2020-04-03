@@ -88,8 +88,215 @@ Socket merupakan sebuah end-point dalam sebuah proses yang saling berkomunikasi.
 
 ### Kategori File
 
+**a
+
+*Buatlah sebuah program dari C untuk mengkategorikan file. Program ini akan memindahkan file sesuai ekstensinya (tidak case sensitive. JPG dan jpg adalah sama) ke dalam folder sesuai ekstensinya yang folder hasilnya terdapat di working
+directory ketika program kategori tersebut dijalankan.
 
 
+```
+
+  if (strcmp(argv2[1],"-f")==0) {
+        printf("Masuk ke -f\n");
+        for(j=2;j<argv1;j++){
+            pthread_create(&(thread[i]), NULL, playandcount, argv2[j]);
+            pthread_join(thread[i], NULL);
+            i++;
+        }
+   printf("SELESAI\n");
+    }
+    
+```
+
+- Pada opsi -f tersebut, user bisa menambahkan argumen file yang bisa dikategorikan sebanyak yang user inginkan seperti contoh di atas.
+
+```
+
+    else{
+        //apabila file tidak ada ekstensi 
+        //memberitahu lokasi file 
+        strcpy(place1, curr_dir); //direktori sekarang
+        strcat(place1,"/");
+        strcat(place1,"Unknown"); 
+        printf("Berada di = %s\n%s\n",abc,place1);
+        printf("SELESAI\n");
+        mkdir(place1, 0777);
+    }
+
+```
+
+- Pada program kategori tersebut, folder jpg,c,zip tidak dibuat secara manual,
+melainkan melalui program c. Semisal ada file yang tidak memiliki ekstensi,
+maka dia akan disimpan dalam folder “Unknown”.
+
+- Untuk opsi yang memasukkan argumen -d adalah sebagai berikut
+
+```
+ else if (strcmp(argv2[1],"-d") == 0 && argv1 == 3) {
+        printf("Masuk ke -d\n");
+        char path1[200],path2[200];
+        DIR *dir; //pointer yang menunjuk ke direktori
+        struct dirent *de;  //membaca file yang terdapat pada direktori
+        dir = opendir(argv2[2]); 
+        int test = 0, i =0;
+        if(dir == NULL) printf("Error!\n");
+        else if(!dir) printf("Periksa lagi, apakah direktori tersebut ada?\n");
+         // loop ketika sebuah direktori ada file/folder didalamnya
+        while( (de=readdir(dir)) )
+        {
+            if ( !strcmp(de->d_name, ".") || !strcmp(de->d_name, "..") );
+            //printf("%s\n",de->d_name);
+            strcpy(path1,argv2[2]); //copy string ke variabel path1
+            strcat(path1,"/"); //menyambungkan perargumennya
+            strcat(path1,de->d_name); 
+            if(de->d_type == 8){
+            pthread_create(&(thread[i]),NULL,playandcount,path1); //membuat thread
+            pthread_join(thread[i],NULL);
+            i++;
+            }
+        }
+         printf("SELESAI\n");
+    }
+    
+```
+
+- Untuk opsi yang memasukkan argumen * adalah sebagai berikut
+
+```
+
+else if (strcmp(argv2[1],"*")==0) {
+        printf("Masuk ke *\n");
+        DIR *dir;
+        struct dirent *de; //membaca file yang terdapat pada direktori
+        char path1[100],path2[100];
+        dir = opendir(curr_dir); //membuka direktori yang sekarang
+        int test = 0, i =0;
+        if(dir == NULL) printf("Error!\n");
+       else if(!dir) printf("Periksa lagi, apakah direktori tersebut ada?\n");
+        // loop ketika sebuah direktori ada file/folder didalamnya
+        while ((de=readdir(dir)) )
+        {
+            if ( !strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."));
+             //lanjutkan
+            printf("%s \n",de->d_name);
+            strcpy(path1,curr_dir); //copy string ke variabel path1
+            strcat(path1,"/"); 
+            strcat(path1,de->d_name);
+            if(de->d_type == 8){
+                //membuat thread
+            pthread_create(&(thread[i]),NULL,playandcount,path1); 
+            pthread_join(thread[i],NULL);
+            i++;
+            }
+        }
+    }
+
+```
+
+- Error handling
+
+```
+  else 
+  // Error handling jika tidak ada argumen yang diinput
+    {
+    printf("Mohon masukkan argumen pada program, berupa -f, *, atau -d\n");
+    exit(EXIT_FAILURE);
+    } 
+}
+
+```
+
+- Program untuk menggunakan thread
+
+```
+
+void* playandcount(void *arg)
+{
+    //copy string ke variabel huruf
+    unsigned long long i=0;
+    strcpy(huruf,arg);
+    char *tanda, *tanda1;
+	pthread_t id = pthread_self(); //mengetahui thread ID
+    tanda1 = strtok(huruf, "/"); //memisahkan string dari karakter (huruf) dengan / sebagai titik pemisahan
+    while( tanda1 != NULL ) {
+        //membaca string
+        array2[b] = tanda1; b++;
+        tanda1 = strtok(NULL, "/");
+    }
+    strcpy(array3, array2[b-1]);
+    tanda = strtok(array2[b-1], "."); //memisahkan string dari karakter (array) dengan . sebagai titik pemisahan
+    while( tanda != NULL ) {
+        //membaca string
+        array[a] = tanda; a++;
+        tanda = strtok(NULL, "."); //memisahkan string dengan . sebagai titik pemisahan
+    }
+
+    char abc[100];
+    strcpy(abc,array[a-1]);
+    for(i = 0; abc[i]; i++) abc[i] = tolower(abc[i]); //convert menjadi lowercase letter
+
+    DIR *fold; //pointer yang menunjuk ke folder/direktori
+    struct dirent *de1;
+    char place1[100],place2[100];
+    fold = opendir(curr_dir); //open direktori saat ini
+    int test = 0;
+    //printf("a = %d\n", a);
+    if(a>1){
+
+        if(fold == NULL) printf("Error!\n");
+           else if(!fold)
+            printf("Periksa lagi, apakah direktori tersebut ada?\n");
+        // loop ketika sebuah direktori ada file/folder didalamnya
+        while( (de1=readdir(fold)) )
+        { 
+            if(strcmp(de1->d_name,abc) == 0 && de1->d_type == 4){
+                test = 1;
+                break;
+            }
+        }
+
+        if(test == 0){
+            //menyusun direktori lokasi file
+            strcpy(place1,curr_dir);
+            strcat(place1,"/");
+            strcat(place1,abc);
+            //memberitahu lokasi file
+            printf("Berada di = %s\n%s\n",abc,place1);
+            printf("SELESAI\n");
+            mkdir(place1, 0777);
+        }
+    }
+
+    else{
+        //apabila file tidak ada ekstensi 
+        //memberitahu lokasi file 
+        strcpy(place1, curr_dir); //direktori sekarang
+        strcat(place1,"/");
+        strcat(place1,"Unknown"); 
+        printf("Berada di = %s\n%s\n",abc,place1);
+        printf("SELESAI\n");
+        mkdir(place1, 0777);
+    }
+	
+
+    char sumber[1024], tujuan[1024];
+    //lokasi file
+    strcpy(sumber,arg);
+    strcpy(tujuan,curr_dir);
+    strcat(tujuan,"/");
+    //jika tidak ada ekstensi
+    if(a== 1) strcat(tujuan,"Unknown");
+    //memiliki ekstensi 
+    else strcat(tujuan, abc);
+    strcat(tujuan,"/");
+    strcat(tujuan,array3);
+    rename(sumber,tujuan);
+    a = 0;
+    b = 0;
+	return NULL;
+}
+
+```
 
 ## SOAL 4
 
@@ -366,246 +573,5 @@ Pada program ini, Norland diminta mengetahui jumlah file dan folder di direktori
 } 
 
 ```
-
--
-int main()
-{
-int stts;
-pid_t child_id;
-child_id = fork();
-if (child_id < 0)
-{
-exit(EXIT_FAILURE); // Jika gagal membuat proses baru, program akan berhenti
-}
-
-if (child_id == 0)
-{
-// this is child
-    pid_t child_id1;
-	child_id1 = fork();
-    if(child_id1 < 0)
-    {
-        exit(EXIT_FAILURE);
-    }
-    if (child_id1 == 0)
-    {
-        char *arg[] = {"mkdir", "-p", "/home/elvira/modul2/indomie", NULL};
-        execv("/bin/mkdir", arg);
-    }
-    else
-    {
-        while ((wait(&stts)) > 0);    
-        sleep (5);  
-        char *arg[] = {"mkdir", "-p", "/home/elvira/modul2/sedaap", NULL};
-        execv("/bin/mkdir", arg);
-    }
-}
-
-```
-
-- `pid_t child_id; dan child_id = fork();` merupakan bagian untuk membuat fork agar bisa menjalankan banyak proses dalam sekali jalan
-
-- `if  (child_id  <  0)  exit(EXIT_FAILURE);`	menunjukkan bahwa jika gagal dalam membuat proses baru, program akan berhenti
-
-- Gunakan fungsi fork() terlebih dahulu untuk membuat direktori pertama (indomie). Membuat direktori menggunakan mkdir –p jika merupakan child process, lalu gunakan perintah execv() untuk menjalankan program.
-
-- `char *arg[] = {"mkdir", "-p", "/home/elvira/modul2/indomie", NULL};` adalah bagian untuk membuat direktori, "-p" adalah untuk membuat parent direktori nya
-
-- `while ((wait(&stts)) > 0);` bagian ini untuk delay suatu proses.
-
-- Direktori kedua yaitu “sedaap” dibuat lima detik kemudian setelah direktori “indomie” dibuat. Maka kita menggunakan perintah `sleep(5)`;
-
-
-### 3b
-
-Kemudian program tersebut harus meng-ekstrak file jpg.zip di direktori “/home/[USER]/modul2/”. Setelah tugas sebelumnya selesai, ternyata tidak hanya itu tugasnya.
-
-> Langkah dan Penjelasan
-
-Code
-
-```
-
-else
-{
-    while ((wait(&stts)) > 0);
-
-    pid_t child_id2;
-	child_id2 = fork();
-
-    if (child_id2 < 0)
-    {
-        exit(EXIT_FAILURE);
-    }
-    if (child_id2 == 0)
-    {
-        char *arg[] = {"unzip", "-oq", "/home/elvira/modul2/jpg.zip", NULL};
-
-        execv("/usr/bin/unzip", arg);
-    }
-
-```
-
-- Gunakan fungsi fork() untuk unzip file. Gunakan perintah unzip() jika merupakan child process, lalu jalankan program menggunakan perintah execv()
-
-- `pid_t child_id2 = fork();` adalah bagian untuk membuat fork agar bisa menjalankan banyak proses dalam sekali jalan
-
-- `if  (child_id  <  0)  exit(EXIT_FAILURE);` menunjukkan bahwa jika gagal dalam membuat proses baru, program akan berhenti
-
-- `while ((wait(&stts)) > 0);` bagian ini untuk delay suatu proses.
-
-
-### 3c
-
-Diberilah tugas baru yaitu setelah di ekstrak, hasil dari ekstrakan tersebut (di dalam direktori “home/[USER]/modul2/jpg/”) harus dipindahkan sesuai dengan pengelompokan, semua file harus dipindahkan ke “/home/[USER]/modul2/sedaap/” dan semua direktori harus dipindahkan ke “/home/[USER]/modul2/indomie/”.
-
-> Langkah dan Penjelasan
-
-Code
-
-```
-
- else 
-      {
-        while ((wait(&stts)) > 0);
-        DIR *d;
-        struct dirent *dr; 
-        d = opendir("jpg");
-	struct stat st;
-        if (d)
-        {
-          while ((dr = readdir(d)) != NULL)
-          {
-            pid_t child_id3;
-	    child_id3 = fork ();
-            if (child_id3 < 0) 
-            {
-              exit(EXIT_FAILURE); 
-            }
-            if (child_id3 == 0)
-            {
-              char file_name[20000];
-              sprintf(file_name, "/home/elvira/modul2/jpg/%s", dr->d_name);
-
-              if (stat(file_name, &st)) 
-              {
-                exit (EXIT_FAILURE);
-              }
-              if (strcmp(dr->d_name, "..")== 0 || strcmp(dr->d_name, ".")== 0);
-
-              else if(dr->d_type == DT_REG)
-              {
-                char* arggg[] = {"mv", file_name, "/home/elvira/modul2/sedaap/", NULL};
-                execv("/bin/mv", arggg);
-              }
-              else 
-              {
-                pid_t child_id4;
-		child_id4 = fork ();
-                if (child_id4 < 0) 
-                {
-                  exit(EXIT_FAILURE); 
-                }
-                if(child_id4 == 0)
-                {
-                  char* arggg[] = {"mv", file_name, "/home/elvira/modul2/indomie/", NULL};
-                  execv("/bin/mv", arggg);
-                }
-
-```
-
-- Struct dirent *dr adalah struct yang berfungsi untuk membaca file yang terdapat pada direktori
-
-- `DIR *d;` adalag pointer untuk menunjuk ke direktori
-
-- `d = opendir("jpg");` adalah bagian untuk membuka direktori jpg
-
-- `struct stat st;` adalah pointer status dalam proses mengecek sebuah direktori
-
-- `if(d)` adalah bagian untuk mengecek pointer yang ditunjuk adalah benar sebuah direktori.
-
-- `while((dr = readdir(d)) != NULL)` bagian ini loop ketika sebuah direktori masih ada file/folder didalamnya
-
-- `char file_name[20000];` untuk menyimpan hasil pencarian
- 
-- `sprintf(file_name, "/home/elvira/modul2/jpg/%s", dr->d_name);` untuk mencari file/folder yang ada dalam direktori
-
-- Direktori tidak termasuk (proses berkelanjutan) jika direktori berupa . dan .., maka harus menggunakan strcmp() untuk membandingkan dengan dr.
-
-- Jika tipe dr merupakan direktori, gunakan fungsi snprintf() untuk memformat dan menyimpan nama hasil ekstrak bertipe direktori yang akan disimpan pada direktori indomie dalam buffer array.
-
-- Gunakan fungsi fork() terlebih dahulu lalu gunakan mv untuk memindahkan nama hasil ekstrak bertipe direktori ke direktori indomie.
-
-- Jika tipe dr merupakan file, gunakan fungsi snprintf() untuk memformat dan menyimpan nama hasil ekstrak ber tipe file yang akan disimpan pada direktori sedaap dalam buffer array (code ada di 3c).
-
-- Gunakan fungsi fork() terlebih dahulu lalu gunakan mv untuk memindahkan nama hasil esktrak yang bertipe file ke direktori sedaap.
-
-
-### 3d
-
-Untuk setiap direktori yang dipindahkan ke “/home/[USER]/modul2/indomie/” harus membuat dua file kosong. File yang pertama diberi nama “coba1.txt”, lalu 3 detik kemudian membuat file bernama “coba2.txt”. (contoh : “/home/[USER]/modul2/indomie/{nama_folder}/coba1.txt”).
-
-```
-              else 
-                {
-                  while ((wait(&stts)) > 0);
-                  pid_t child_id5;
-		  child_id5 = fork ();
-                  if (child_id5 < 0) 
-                  {
-                    exit(EXIT_FAILURE); 
-                  }
-                  if(child_id5 == 0)
-                  {
-                    char destination_file[20000];
-                     FILE *target;
-	              sprintf(destination_file, "/home/elvira/modul2/indomie/%s/coba1.txt", dr->d_name);
-                      target = fopen(destination_file,"w");
-                      fclose(target);
-                    
-                  }
-                  else 
-                  {
-                    while ((wait(&stts)) > 0);
-                    sleep(3);
-                    char destination_file[20000];
-  		      FILE *target;
-	              sprintf(destination_file, "/home/elvira/modul2/indomie/%s/coba2.txt", dr->d_name);
-	              target = fopen(destination_file,"w");
-	              fclose(target);
-		      exit(0);
-
-                  }
-                }
-              }
-            }
-          }
-          closedir(d);
-
-        }
-      }
-    }
-  }
-
-```
-
-- Terdapat dua file kosong yang akan dibuat yaitu file coba1.txt dan coba2.txt jika dr bertipe direktori
-
-- `FILE *target;` adalah pointer untuk menunjuk sebuah file/folder
-
-- `target = fopen(destination_file,"w");` adalah untuk membuka file/folder kemudian memberikan perintah untuk membuat file "coba1.txt" atau "coba2.txt"pada direktori
-
-- Gunakan fungsi snprintf() untuk memformat dan menyimpan coba1.txt yang akan disimpan pada direktori dalam buffer array.
-
-- Membuat file coba1.txt lalu gunakan perintah execv() untuk eksekusi
-
-- File coba2.txt dibuat tiga detik kemudian setelah file coba1.txt dibuat, maka gunakan perintah sleep(3)
-
-- Gunakan fungsi snprintf() untuk memformat dan menyimpan file coba2.txt yang akan disimpan pada direktori dalam buffer array.
-
-- Membuat file coba2.txt lalu gunakan perintah execv() untuk eksekusi
-
-- `fclose(target); exit(0);` adalah untuk mengakhiri proses dalam membuat file dalam direktori
-
 
 **TERIMA KASIH**
