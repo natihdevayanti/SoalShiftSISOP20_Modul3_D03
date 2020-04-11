@@ -458,7 +458,7 @@ void* playandcount(void *arg)
 
 ### Matriks 
 
-**a.
+**a.**
 Program untuk melakukan perkalian matriks. Ukuran matriks pertama adalah 4x2, dan matriks kedua 2x5. Isi dari matriks didefinisikan di dalam kodingan. Matriks nantinya akan berisi angka 1-20
 
 > Langkah dan Penjelasan
@@ -583,7 +583,7 @@ printf("Hasil Perkalian antara matriks A dan B adalah: \n");
  ```
 
 
-**b. 
+**b.**
  Carilah nilai faktorial pertambahan per-elemen hasil perkalian matriks tersebut
 
 - Template shared memory
@@ -663,7 +663,7 @@ unsigned long long factorial(unsigned long long a){
 Jika elemennya 0 atau 1 maka akan mengembalikan nilai 1, karena faktorial dari 0 dan 1 adalah 1. Untuk elemen dg angka diatas 1 maka digunakan rumus `a+ factorial(a-1)`
 
 
-**c.
+**c.**
 Pada program ini, Norland diminta mengetahui jumlah file dan folder di direktori saat ini dengan command "ls | wc -l".
 
 - Deklarasikan pipe dan fork
