@@ -313,15 +313,15 @@ void DbWrite(struct Connect *connect)
 - Membuat looping (while(1)) untuk program berikut
 
 ```
-		if(gamemulai==0)
+		if(starting==0)
 		{
-			printf("1. Login Akun \n2. Create Akun\nPilih (dalam angka): ");
-			char pilih[10];
-			scanf("%s", pilih);
-			send(sock, pilih, strlen(pilih), 0);
+			printf("1. Login Akun \n2. Create Akun\nPilih : ");
+			char choose[10];
+			scanf("%s", choose);
+			send(sock, choose, strlen(choose), 0);
 ```
 
-- Jika memilih 1, maka akan muncul tampilan menu untuk log in
+- Jika memilih 1, maka akan muncul tampilan menu untuk log in, jika sesuai 
 
 ```
 if(strcmp(choose, "1") == 0)
@@ -340,7 +340,7 @@ if(strcmp(choose, "1") == 0)
 
 				int kode = -1;
 				baca = recv(sock, &kode, sizeof(kode), 0);
-				if(kode==202)
+				if(kode==202) //accepted
 				{
 					printf("Login Berhasil\n");
 					starting = 1;
@@ -352,6 +352,11 @@ if(strcmp(choose, "1") == 0)
 				}
 			}				
 ```
+
+`send(sock, your_account, strlen(your_account), 0);` sending message 'your_account' 
+
+`baca = recv(sock, &kode, sizeof(kode), 0);` mendapatkan kode sebelumnya 
+
 
 - Jika memilih 2, maka muncul tampilan untuk sign up
 
