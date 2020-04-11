@@ -467,38 +467,26 @@ directory ketika program kategori tersebut dijalankan.
 
 ```
 
-  if (strcmp(argv2[1],"-f")==0) {
+    if (strcmp(argv2[1],"-f")==0) {
         printf("Masuk ke -f\n");
         for(j=2;j<argv1;j++){
             pthread_create(&(thread[i]), NULL, playandcount, argv2[j]);
+            i++;
+        }
+        i=0;
+         for(j=2;j<argv1;j++){
             pthread_join(thread[i], NULL);
             i++;
         }
-   printf("SELESAI\n");
+   exit(0);
     }
     
 ```
 
 - Pada opsi -f tersebut, user bisa menambahkan argumen file yang bisa dikategorikan sebanyak yang user inginkan seperti contoh di atas.
 
-```
+- Code diatas menggunakan multithreading agar bisa berjalan paralel
 
-    else{
-        //apabila file tidak ada ekstensi 
-        //memberitahu lokasi file 
-        strcpy(place1, curr_dir); //direktori sekarang
-        strcat(place1,"/");
-        strcat(place1,"Unknown"); 
-        printf("Berada di = %s\n%s\n",abc,place1);
-        printf("SELESAI\n");
-        mkdir(place1, 0777);
-    }
-
-```
-
-- Pada program kategori tersebut, folder jpg,c,zip tidak dibuat secara manual,
-melainkan melalui program c. Semisal ada file yang tidak memiliki ekstensi,
-maka dia akan disimpan dalam folder “Unknown”.
 
 - Untuk opsi yang memasukkan argumen -d adalah sebagai berikut
 
@@ -530,6 +518,18 @@ maka dia akan disimpan dalam folder “Unknown”.
     }
     
 ```
+
+`DIR *dir;` adalah pointer yang menunjuk ke direktori
+ 
+`dir = opendir(curr_dir)` untuk membuka direktori yang sekarang.
+ 
+`while( (de=readdir(dir)) )` adalah looping ketika dalam direktori tersebut ada file/folder didalamnya
+ 
+`strcpy(path1,argv2[2]);` merupakan peng-copy-an string argumen kedua (direktori) ke variabel path1
+
+`if(de->d_type == 8)` adalah pengecekan apakah typenya termasuk file atau bukan (tipe file =8, folder=4). Jika benar, maka dibuatkan thread menuju playandcount
+
+***Program diatas belum memakai multithreading dikarenakan saat memakai multithreading yang terjadi adalah segmentation fault***
 
 - Untuk opsi yang memasukkan argumen * adalah sebagai berikut
 
@@ -564,6 +564,12 @@ else if (strcmp(argv2[1],"*")==0) {
 
 ```
 
+`strcpy(path1,curr_dir);` untuk copy string cwd ke variabel path1
+
+`if(de->d_type == 8)` adalah pengecekan apakah typenya termasuk file atau bukan (tipe file =8, folder=4). Jika benar, maka dibuatkan thread menuju playandcount
+
+***Program diatas belum memakai multithreading dikarenakan saat memakai multithreading yang terjadi adalah segmentation fault***
+
 - Error handling
 
 ```
@@ -577,7 +583,7 @@ else if (strcmp(argv2[1],"*")==0) {
 
 ```
 
-- Program untuk menggunakan thread
+- Program untuk mendapatkan nama file dan membuat folder 
 
 ```
 
@@ -648,8 +654,90 @@ void* playandcount(void *arg)
         printf("SELESAI\n");
         mkdir(place1, 0777);
     }
-	
+	}
 
+```
+
+`tanda1 = strtok(huruf, "/");` untuk memisahkan string dari karakter (huruf) dengan / sebagai titik pemisahan
+
+```
+    while( tanda1 != NULL ) {
+        //membaca string
+        array2[b] = tanda1; b++;
+        tanda1 = strtok(NULL, "/");
+    }
+```
+adalah untuk membaca string huruf pada direktori terkait
+
+```
+strcpy(array3, array2[b-1]);
+    tanda = strtok(array2[b-1], "."); //memisahkan string dari karakter (huruf) dengan . sebagai titik pemisahan
+    while( tanda != NULL ) {
+        //membaca string
+        array[a] = tanda; a++;
+        tanda = strtok(NULL, "."); //memisahkan string dari karakter (huruf) dengan . sebagai titik pemisahan
+    }
+```
+adalah untuk membaca dan memisahkan file dengan ekstensi serta menghitung penanda a. Jika a = 1 maka file tersebut hanya berupa nama, tidak bersama ekstensinya. Jika a> 1 maka file tersebut memiliki ekstensi. 
+
+`tanda = strtok(array2[b-1], ".");` memisahkan string terakhir dengan . sebagai titik pemisahan. Dengan ini, nama file dan ekstensinya akan dipisah
+
+```
+char abc[100];
+    strcpy(abc,array[a-1]);
+    for(i = 0; abc[i]; i++) abc[i] = tolower(abc[i]); 
+```
+adalah untuk convert ekstensi file yang berukuran huruf besar ke huruf kecil, agar bisa masuk ke folder ekstensi yang memakai huruf kecil
+
+```
+  while( (de1=readdir(fold)) )
+        { 
+            if(strcmp(de1->d_name,abc) == 0 && de1->d_type == 4){
+                test = 1;
+                break;
+            }
+        }
+```
+adalah untuk memeriksa bahwa apakah file tersebut sudah benar ada di folder terkait atau apakah tipenya adalah folder. Jika iya, maka tandai test = 1 dan lewati.
+
+```
+ if(test == 0){
+            //menyusun direktori lokasi file
+            strcpy(place1,curr_dir);
+            strcat(place1,"/");
+            strcat(place1,abc);
+            //memberitahu lokasi file
+            printf("Berada di = %s\n%s\n",abc,place1);
+            printf("SELESAI\n");
+            mkdir(place1, 0777);
+        }
+```
+adalah apabila file tersebut berekstensi, maka nantinya juga akan dibuatkan folder sesuai ekstensi file tersebut. 
+
+```
+ else{
+        //apabila file tidak ada ekstensi 
+        //memberitahu lokasi file 
+        strcpy(place1, curr_dir); //direktori sekarang
+        strcat(place1,"/");
+        strcat(place1,"Unknown"); 
+        printf("Berada di = %s\n%s\n",abc,place1);
+        printf("SELESAI\n");
+        mkdir(place1, 0777);
+    }
+```
+adalah untuk file tanpa ekstensi, nantinya akan dimasukkan di folder Unknown.
+
+`curr_dir` dicopy ke variabel `place1` untuk disusun direktorinya
+
+`0777` menandakan file permission 
+
+`abc` adalah ekstensi dan `place1` letak file tersebut secara lengkap 
+
+
+- Kemudian untuk move file, praktikan menggunakan fungsi rename. Dengan code seperti dibawah ini.
+
+```
     char sumber[1024], tujuan[1024];
     //lokasi file
     strcpy(sumber,arg);
@@ -657,7 +745,7 @@ void* playandcount(void *arg)
     strcat(tujuan,"/");
     //jika tidak ada ekstensi
     if(a== 1) strcat(tujuan,"Unknown");
-    //memiliki ekstensi 
+    //memiliki ekstensi jelas
     else strcat(tujuan, abc);
     strcat(tujuan,"/");
     strcat(tujuan,array3);
@@ -665,9 +753,8 @@ void* playandcount(void *arg)
     a = 0;
     b = 0;
 	return NULL;
-}
-
 ```
+
 
 ## SOAL 4
 
