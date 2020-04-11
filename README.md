@@ -153,7 +153,7 @@ Screen 2 :
 
 ```
 
-# Pemahaman Penulis 
+### Pemahaman Praktikan
 
 **Server**
 
@@ -239,6 +239,39 @@ void DbWrite(struct Connect *connect)
 
 - Membuat socket
 
+- Membuat template untuk server di main
+
+```
+	int server_fd, socket_n, opt=1;
+	struct sockaddr_in address;
+	int addrlen=sizeof(address);
+
+	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+	}
+
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+	perror("setsockopt");
+	exit(EXIT_FAILURE);
+	}
+
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_port = htons( PORT );		
+	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+	}
+
+	if (listen(server_fd, 3) < 0) {
+	perror("listen");
+	exit(EXIT_FAILURE);
+	}
+
+```
+
+
 **Program belum bisa diselesaikan oleh penulis**
 
 
@@ -312,7 +345,6 @@ if(strcmp(choose, "1") == 0)
 					printf("Login Berhasil\n");
 					starting = 1;
 					pthread_t thread_id;
-					//if(pthread_creat(*thread_id, NULL, 
 				}
 				else
 				{
