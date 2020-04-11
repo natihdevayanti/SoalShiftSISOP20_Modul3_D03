@@ -467,7 +467,7 @@ Buatlah sebuah program dari C untuk mengkategorikan file. Program ini akan memin
  
 ```
 
-**a**
+**Pembahasan**
 
 Buatlah sebuah program dari C untuk mengkategorikan file. Program ini akan memindahkan file sesuai ekstensinya (tidak case sensitive. JPG dan jpg adalah sama) ke dalam folder sesuai ekstensinya yang folder hasilnya terdapat di working
 directory ketika program kategori tersebut dijalankan.
