@@ -17,19 +17,19 @@ Elvira Catrine Natalie (05111840000016)
 - Untuk mendapatkan variabel-variabelnya, maka kita menggunakan struct. Struct ini ialah untuk pokemon, gamedata, dan juga shop. 
 
 
-**a
+**a**
 Menggunakan IPC-shared memory, thread, fork-exec.
 
-**b
+**b**
 Bebas berkreasi dengan game ini asal tidak konflik dengan
 requirements yang ada. (Contoh: memberi nama trainer, memberi notifikasi
 kalau barang di shop sudah penuh, dan lain-lain).
 
-**c
+**c**
 Terdapat 2 code yaitu soal2_traizone.c dan soal2_pokezone.c.
 
 
-**d
+**d**
 soal2_traizone.c mengandung beberapa fitur yang tertera dalam soal shift.
 
 
@@ -67,69 +67,187 @@ Thread merupakan unit terkecil dalam suatu proses yang dapat dijadwalkan oleh si
 
 ### TapTap Game
 
-- TapTap Game adalah game online berbasis text console. Terdapat 2 program yaitu tapserver.c dan tapplayer.c
+- Soal
 
+```
+Qiqi adalah sahabat MamMam dan Kaka. Qiqi , Kaka dan MamMam sangat senang
+bermain “Rainbow six” bersama-sama , akan tetapi MamMam sangat Toxic ia selalu
+melakukan Team killing kepada Qiqi di setiap permainannya. Karena Qiqi orang yang
+baik hati, meskipun marah Qiqi selalu berkata “Aku nggk marah!!”. Kaka ingin
+meredam kemarahan Qiqi dengan membuatkannya sebuah game yaitu TapTap
+Game. akan tetapi Kaka tidak bisa membuatnya sendiri, ia butuh bantuan mu. Ayo!!
+Bantu Kaka menenangkan Qiqi.
 
-**Server
+TapTap Game adalah game online berbasis text console. Terdapat 2 program yaitu
+tapserver.c dan tapplayer.c
+
+Syarat :
+- Menggunakan Socket, dan Thread
+Hint :
+- fwrite, fread
+
+Spesifikasi Game :
+
+                                  CLIENT SIDE
+
+Screen 1 :
+  1. Login
+  2. Register
+     Choices : {your input}
+     
+  ★ Pada screen 1 kalian dapat menginputkan “login”, setelah menekan enter
+    anda diminta untuk menginputkan username dan password seperti berikut
+
+Screen 1 :
+  1. Login
+  2. Register
+     Choices : login
+     Username : { ex : qiqi }
+     Password : { ex : aku nggak marah!! }
+     
+  ★ Jika login berhasil maka akan menampilkan pesan “login success”, jika gagal
+    akan menampilkan pesan “login failed” (pengecekan login hanya mengecek
+    username dan password, maka dapat multi autentikasi dengan username dan
+    password yang sama)
+  ★ Pada screen 1 kalian juga dapat menginputkan “register”, setelah menekan
+    enter anda diminta untuk menginputkan username dan password sama
+    halnya seperti login
+  ★ Pada register tidak ada pengecekan unique username, maka setelah register
+    akan langsung menampilkan pesan “register success” dan dapat terjadi
+    double account
+  ★ Setelah login berhasil maka anda berpindah ke screen 2 dimana
+    menampilkan 2 fitur seperti berikut.
+    
+Screen 2 :
+  1. Find Match
+  2. Logout
+     Choices : {your input}
+  
+  ★ Pada screen 2 anda dapat menginputkan “logout” setelah logout anda akan
+    kembali ke screen 1
+  ★ Pada screen 2 anda dapat menginputkan “find”, setelah itu akan
+    menampilkan pesan “Waiting for player ...” print terus sampai menemukan
+    lawan
+  ★ Jika menemukan lawan maka akan menampilkan pesan “Game dimulai
+    silahkan tap tap secepat mungkin !!”
+  ★ Pada saat game dimulai diberikan variable health = 100,dan anda dapat
+    men- tap (menekan space pada keyboard tanpa harus menekan enter)
+  ★ Pada saat anda men- tap maka akan menampilkan pesan “hit !!”, dan pada
+    lawan healthnya akan berkurang sebanyak 10 kemudian pada lawan
+    menampilkan pesan status healthnya sekarang. (conclusion : anda tidak bisa
+    melihat status health lawan)
+  ★ Jika health anda <= 0 maka akan menampilkan pesan “Game berakhir kamu
+    kalah”, apabila lawan anda healthnya <= 0 maka akan menampilkan pesan
+    ”Game berakhir kamu menang”
+  ★ Setelah menang atau kalah maka akan kembali ke screen 2
+
+                                  SERVER SIDE
+                                                      
+  ★ Pada saat program pertama kali dijalankan maka program akan membuat file
+    akun.txt jika file tersebut tidak ada. File tersebut digunakan untuk menyimpan
+    username dan password
+  ★ Pada saat user berhasil login maka akan menampilkan pesan “Auth success” jika
+    gagal “Auth Failed”
+  ★ Pada saat user sukses meregister maka akan menampilkan List account yang
+    terdaftar (username dan password harus terlihat)
 
 ```
 
-int main(int argc, char const *argv[])
+# Pemahaman Penulis 
+
+**Server**
+
+- Membuat struct untuk connect
+
+```
+struct Connect
 {
-	int server_fd, socket_n, opt=1;
-	struct sockaddr_in address;
-	int addrlen=sizeof(address);
-
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("socket failed");
-        exit(EXIT_FAILURE);
-	}
-
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-	perror("setsockopt");
-	exit(EXIT_FAILURE);
-	}
-
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons( PORT );		
-	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
-	}
-
-	if (listen(server_fd, 3) < 0) {
-	perror("listen");
-	exit(EXIT_FAILURE);
-	}
-
-	pthread_t thread_id;
-	
-	while((socket_n = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))){
-		
-		if( pthread_create( &thread_id , NULL ,  valsocket , (void*) &socket_n) < 0)
-		{
-		    perror("could not create thread");
-		    return 1;
-		}
-		
-	    }
-
-	    if(socket_n < 0){
-		perror("accept failed");
-		exit(EXIT_FAILURE);
-	    }
-	}
-
+	FILE *file;
+	struct Database *db;
+};
 
 ```
 
-
-**Client
+- Membuat struct akun
 
 ```
-int main(int argc, char const *argv[])
+struct Akun
 {
+	int id;
+	int set;
+	char username[1024];
+	char pass[1024];
+};
+```
+
+- Membuat struct databse
+
+```
+struct Database
+{
+	struct Akun baris[10];
+};
+```
+
+- Membuat fungsi void untuk deliver message
+
+```
+void Err(char *message){
+    if(errno) {
+        perror(message);
+    } else {
+        printf("ERROR: %s\n", message);
+    }
+    exit(1);
+}
+```
+- Membuat fungsi pengecekan eksistensi file
+
+```
+int cfileexists(const char * filename){
+    FILE *file;
+    if (file = fopen(filename, "r")){
+        fclose(file);
+        return 1;
+    }
+    return 0;
+}
+```
+
+- Membuat fungsi Dbwrite untuk connect dan sebagai error handling database
+
+```
+void DbWrite(struct Connect *connect)
+{
+	rewind(connect->file);
+	int datamasuk = fwrite(connect->db , sizeof(struct Database), 1, connect->file);
+	if(datamasuk !=1) Err("Gagal mengisi database");
+	datamasuk = fflush(connect->file);
+	if(datamasuk<0) Err("Gagal flush database");
+}
+```
+
+- Membuat struct untuk open database 
+
+- Membuat fungsi untuk register akun
+
+- Membuat fungsi log in
+
+- Membuat list acc
+
+- Membuat database close
+
+- Membuat socket
+
+**Program belum bisa diselesaikan oleh penulis**
+
+
+
+**Client**
+
+- Membuat template client
+
+```
 	struct sockaddr_in address;
 	int sock=0, baca;
 
@@ -157,34 +275,42 @@ int main(int argc, char const *argv[])
 		return -1;
 	}
 
-	while(1)
-	{
+```
+
+- Membuat looping (while(1)) untuk program berikut
+
+```
 		if(gamemulai==0)
 		{
 			printf("1. Login Akun \n2. Create Akun\nPilih (dalam angka): ");
 			char pilih[10];
 			scanf("%s", pilih);
 			send(sock, pilih, strlen(pilih), 0);
-			if(strcmp(pilih, "1") == 0)
+```
+
+- Jika memilih 1, maka akan muncul tampilan menu untuk log in
+
+```
+if(strcmp(choose, "1") == 0)
 			{
-				char akunmu[50];
+				char your_account[50];
 				printf("Username : ");
-				scanf("%s", akunmu);
+				scanf("%s", your_account);
 				getchar();
 
-				send(sock, akunmu, strlen(akunmu), 0);
+				send(sock, your_account, strlen(your_account), 0);
 									
-				memset(akunmu, 0, sizeof(akunmu));
+				memset(your_account, 0, sizeof(your_account));
 				printf("Password : ");
-				gets(akunmu);
-				send(sock, akunmu, strlen(akunmu), 0);
+				gets(your_account);
+				send(sock, your_account, strlen(your_account), 0);
 
 				int kode = -1;
 				baca = recv(sock, &kode, sizeof(kode), 0);
 				if(kode==202)
 				{
 					printf("Login Berhasil\n");
-					gamemulai = 1;
+					starting = 1;
 					pthread_t thread_id;
 					//if(pthread_creat(*thread_id, NULL, 
 				}
@@ -193,30 +319,33 @@ int main(int argc, char const *argv[])
 					printf("Login Gagal\n");
 				}
 			}				
-			if(strcmp(pilih, "2") == 0)
+```
+
+- Jika memilih 2, maka muncul tampilan untuk sign up
+
+```
+		if(strcmp(choose, "2") == 0)
 			{
-				char akunmu[50];
+				char your_account[50];
 				printf("Username : ");
-				scanf("%s", akunmu);
+				scanf("%s", your_account);
 				getchar();
 
-				send(sock, akunmu, strlen(akunmu), 0);
+				send(sock, your_account, strlen(your_account), 0);
 									
-				memset(akunmu, 0, sizeof(akunmu));
+				memset(your_account, 0, sizeof(your_account));
 				printf("Password : ");
-				gets(akunmu);
-				send(sock, akunmu, strlen(akunmu), 0);
+				gets(your_account);
+				send(sock, your_account, strlen(your_account), 0);
 
 				printf("Register Telah Sukses\n");
-			}			
-			
-			
-			memset(pilih, 0, sizeof(pilih));
-		}
-	}
-	return 0;
-}				
+			}		
+```
 
+- Memset
+
+```
+		memset(choose, 0, sizeof(choose));
 ```
 
 
@@ -227,6 +356,8 @@ int main(int argc, char const *argv[])
 - Belum sempat memahami secara detail maksud dari soal terkait
 
 - Masih menyusun fungsi-fungsi yang dibentuk dan belum selesai 
+
+- WFH membuat praktikan susah untuk melakukan komunikasi/diskusi bersama
 
 
 > Materi
