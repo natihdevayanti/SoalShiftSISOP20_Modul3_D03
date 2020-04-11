@@ -17,19 +17,19 @@ Elvira Catrine Natalie (05111840000016)
 - Untuk mendapatkan variabel-variabelnya, maka kita menggunakan struct. Struct ini ialah untuk pokemon, gamedata, dan juga shop. 
 
 
-**a**
+**a.**
 Menggunakan IPC-shared memory, thread, fork-exec.
 
-**b**
+**b.**
 Bebas berkreasi dengan game ini asal tidak konflik dengan
 requirements yang ada. (Contoh: memberi nama trainer, memberi notifikasi
 kalau barang di shop sudah penuh, dan lain-lain).
 
-**c**
+**c.**
 Terdapat 2 code yaitu soal2_traizone.c dan soal2_pokezone.c.
 
 
-**d**
+**d.**
 soal2_traizone.c mengandung beberapa fitur yang tertera dalam soal shift.
 
 
@@ -41,7 +41,7 @@ soal2_traizone.c mengandung beberapa fitur yang tertera dalam soal shift.
 
 > Materi
 
-** Struct
+**Struct***
 
 Structure atau struct adalah kumpulan dari beberapa variabel dengan beragam tipe data yang dibungkus dalam satu varabel. Agar struct dapat digunakan, kita harus membuat variabel untuknya.
 
@@ -57,7 +57,7 @@ struct Mahasiswa
 
 ```
 
-** Thread
+**Thread**
 
 Thread merupakan unit terkecil dalam suatu proses yang dapat dijadwalkan oleh sistem operasi. Thread biasanya terbentuk oleh fork yang berjalan pada suatu script atau program untuk sebuah proses. Minimal terdapat sebuah thread yang berjalan dalam suatu proses, walau biasanya terdapat lebih dari satu thread dalam proses tersebut. Thread akan berbagi memori dan menggunakan informasi (nilai) dari variabel-variabel pada suatu proses tersebut. Penggambaran thread pada sebuah proses dapat dilihat sebagai berikut.
 
@@ -180,7 +180,7 @@ struct Akun
 };
 ```
 
-- Membuat struct databse
+- Membuat struct database
 
 ```
 struct Database
@@ -214,30 +214,36 @@ int cfileexists(const char * filename){
 }
 ```
 
-- Membuat fungsi Dbwrite untuk connect dan sebagai error handling database
+- Membuat fungsi write database untuk mengisi database dan sebagai error handling database
 
-```
-void DbWrite(struct Connect *connect)
-{
-	rewind(connect->file);
-	int datamasuk = fwrite(connect->db , sizeof(struct Database), 1, connect->file);
-	if(datamasuk !=1) Err("Gagal mengisi database");
-	datamasuk = fflush(connect->file);
-	if(datamasuk<0) Err("Gagal flush database");
-}
-```
+- Membuat struct connect untuk open database 
 
-- Membuat struct untuk open database 
+- Membuat fungsi untuk register akun (menambah akun di database)
 
-- Membuat fungsi untuk register akun
-
-- Membuat fungsi log in
+- Membuat fungsi log in sebagai proses pengambilan database ketika log in
 
 - Membuat list acc
 
 - Membuat database close
 
 - Membuat socket
+
+```
+void *valsocket(void *socket_arg)
+{
+	int socket = *(int*)socket_arg;
+	while(1)
+	{
+	char buff[1024] = {0};
+	int baca = read(socket, buff, 1024);
+		
+	if(strcmp(buff, "1")==0){
+		char username[50];
+		baca=read(socket, username, 1024);
+		char pass[50];
+		baca=read(socket, pass, 1024);
+```
+***belum selesai***
 
 - Membuat template untuk server di main
 
@@ -271,8 +277,10 @@ void DbWrite(struct Connect *connect)
 
 ```
 
+- Membuat thread saat acc
 
-**Program belum bisa diselesaikan oleh penulis**
+
+**Program belum bisa diselesaikan oleh praktikan**
 
 
 
@@ -399,11 +407,11 @@ if(strcmp(choose, "1") == 0)
 
 > Materi
 
-** Thread
+**Thread**
 
 Thread merupakan unit terkecil dalam suatu proses yang dapat dijadwalkan oleh sistem operasi. Thread biasanya terbentuk oleh fork yang berjalan pada suatu script atau program untuk sebuah proses. Minimal terdapat sebuah thread yang berjalan dalam suatu proses, walau biasanya terdapat lebih dari satu thread dalam proses tersebut. Thread akan berbagi memori dan menggunakan informasi (nilai) dari variabel-variabel pada suatu proses tersebut. Penggambaran thread pada sebuah proses dapat dilihat sebagai berikut.
 
-** Socket
+**Socket**
 
 Socket merupakan sebuah end-point dalam sebuah proses yang saling berkomunikasi. Biasanya socket digunakan untuk komunikasi antar proses pada komputer yang berbeda, namun dapat juga digunakan dalam komputer yang sama.
 
