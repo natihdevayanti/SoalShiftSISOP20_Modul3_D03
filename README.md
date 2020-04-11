@@ -464,9 +464,9 @@ Program untuk melakukan perkalian matriks. Ukuran matriks pertama adalah 4x2, da
 > Langkah dan Penjelasan
 
 
-- Berikut adalah pengisian matriks pertama (isinya bebas)
+- Berikut adalah pengisian matriks pertama (isinya bebas) berukuran 4x5, yang dimana praktikan menamakan matriks pertama menjadi matriks A.
 
-- Elemen matriks ditulis satu persatu
+- Masing-masing elemen matriks ditulis satu persatu
 
 ```
 
@@ -485,7 +485,7 @@ void *pengisian_matriks_A(void *arg)
 
 ```
 
-- Berikut adalah pengisian matriks kedua (isinya bebas)
+- Berikut adalah pengisian matriks kedua (isinya bebas) berukuran 2x5, yang dimana praktikan menamakan matriks kedua menjadi matriks B. 
 
 ```
 
@@ -506,7 +506,7 @@ void *pengisian_matriks_B(void *arg)
 
 ````
 
-- Dibuat thread sebanyak pengisian matriks. Masing - masing thread di join
+- Dibuat thread sebanyak pengisian matriks A dan B. Masing - masing thread di join
 
 ```
 
@@ -518,7 +518,7 @@ pthread_create(&thread1, NULL, pengisian_matriks_A, NULL);
 
 ```
 
-- Template shared memory
+- Template shared memory. Shared memory adalah memori yang dapat diakses secara bersamaan oleh beberapa program dengan maksud untuk menyediakan komunikasi di antara mereka atau menghindari salinan yang berlebihan. 
 
 ```
 
@@ -528,7 +528,7 @@ pthread_create(&thread1, NULL, pengisian_matriks_A, NULL);
 
 ```
 
-- Dibuat thread sebanyak jumlah perkalian matriks
+- Dibuat thread sebanyak jumlah perkalian matriks. Program dibawah ini bertujuan sebagai template pengisian hasil perkalian matriks.
 
 ```
 	for(int i=0;i<baris_A;i++){
@@ -565,6 +565,9 @@ void *perkalian_matriks(void *arg)
 ```
 
 `hsl+=matriks_A[i][k] * matriks_B[k][j];` merupakan operasi perkalian matriks
+
+`value[i][j]= hsl;` merupakan penyimpanan hasil perkalian dalam variabel value
+
 
 - Menampilkan hasil perkalian matriks
 
@@ -624,7 +627,7 @@ key_t key = 1234;
 
 void *faktorial(void *arg)
 {
-	//template shared memory
+
         key_t key = 1234;
         int (*value)[10];
         int shmid = shmget(key, sizeof(int), IPC_CREAT | 0666);
@@ -634,7 +637,7 @@ void *faktorial(void *arg)
 		for(int j=0;j<column;j++){
 			//faktorial dihitung per elemen matriks hasil perkalian
             angka=value[i][j];
-			printf("%llu\t", factorial(angka)); //pemanggilan fungsi factorial untuk menghitung 
+			printf("%llu\t", factorial(angka)); 
 		}
 		printf("\n");
 	}
@@ -642,6 +645,9 @@ void *faktorial(void *arg)
 }
 
 ```
+
+Melalui syntax `printf("%llu\t", factorial(angka));`, nantinya akan dicetak faktorial pertambahan per elemen matriks hasil perkalian tersebut.
+
 
 - Fungsi rekursif untuk menghitung faktorial
 
@@ -654,7 +660,7 @@ unsigned long long factorial(unsigned long long a){
 
 ````
 
-Melalui syntax `printf("%llu\t", factorial(angka));`, nantinya akan dicetak faktorial pertambahan per elemen matriks hasil perkalian tersebut.
+Jika elemennya 0 atau 1 maka akan mengembalikan nilai 1, karena faktorial dari 0 dan 1 adalah 1. Untuk elemen dg angka diatas 1 maka digunakan rumus `a+ factorial(a-1)`
 
 
 **c.
@@ -693,27 +699,7 @@ Pada program ini, Norland diminta mengetahui jumlah file dan folder di direktori
 
 ```
 
-- Fork pada parent yang menrima inputan dari child yang dihubungkan dengan pipe
 
-```
-    else if (p1 > 0) {
-
-        close(pipe2[0]);
-        close(pipe2[1]);
-		// 0 = input, 1 = write
-        dup2(pipe1[0], 0); 
-		//baca isi dr pipe1 untuk dieksekusi
-        dup2(pipe2[1], 1); // output ke pipe2
-
-        close(pipe1[0]);
-        close(pipe1[1]);
-//mengetahui jumlah file dan folder di direktori saat ini
-        char *arg1[] = {"wc", "-l", NULL};
-        execvp("/usr/bin/wc", arg1);
-		exit(0);
-        }
-	
-```
 - Child process untuk menampilkan ls. List apa saja file yang ada di dalamnya
 
 ```
@@ -729,5 +715,35 @@ Pada program ini, Norland diminta mengetahui jumlah file dan folder di direktori
 } 
 
 ```
+
+Perintah `char *arg2[] = {"ls", NULL};` digunakan untuk list file/folder didalam direktori sekarang.
+
+
+- Fork pada parent yang menerima inputan dari child yang dihubungkan dengan pipe
+
+```
+    else if (p1 > 0) {
+
+        close(pipe2[0]);
+        close(pipe2[1]);
+		// 0 = input, 1 = write
+        dup2(pipe1[0], 0); 
+		//baca isi dr pipe1 untuk dieksekusi
+        dup2(pipe2[1], 1); // output ke pipe2
+
+        close(pipe1[0]);
+        close(pipe1[1]);
+
+        char *arg1[] = {"wc", "-l", NULL};
+        execvp("/usr/bin/wc", arg1);
+		exit(0);
+        }
+	
+```
+
+`char *arg1[] = {"wc", "-l", NULL};` digunakan untuk mengetahui jumlah file dan folder di direktori saat ini
+
+- Maka output yang dihasilkan dari program ini adalah jumlah dari file dan folder yang ada pada current working directory.
+
 
 **TERIMA KASIH**
