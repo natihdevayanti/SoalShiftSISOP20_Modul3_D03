@@ -32,14 +32,18 @@ int main(int argv1, char *argv2[]) {
     int i=0;
     int j=0; 
     //jika  memilih opsi -f
-    if (strcmp(argv2[1],"-f")==0) {
+  	if (strcmp(argv2[1],"-f")==0) {
         printf("Masuk ke -f\n");
         for(j=2;j<argv1;j++){
             pthread_create(&(thread[i]), NULL, playandcount, argv2[j]);
+            i++;
+        }
+        i=0;
+         for(j=2;j<argv1;j++){
             pthread_join(thread[i], NULL);
             i++;
         }
-   printf("SELESAI\n");
+   exit(0);
     }
 
     //jika  memilih opsi -d
